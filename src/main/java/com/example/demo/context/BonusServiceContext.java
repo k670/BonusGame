@@ -18,8 +18,5 @@ public class BonusServiceContext {
     public BonusService bonusService(BonusRepository bonusRepository){
         return new BonusService(bonusRepository);
     }
-    @Bean
-    public BonusGameController bonusGameController(BonusService bonusService){
-        return new BonusGameController(bonusService);
-    }
+
 }

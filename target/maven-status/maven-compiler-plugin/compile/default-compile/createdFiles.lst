@@ -1,0 +1,6 @@
+com\example\demo\controller\HelloController.class
+com\example\demo\controller\BonusGameController.class
+com\example\demo\repository\BonusRepository.class
+com\example\demo\service\BonusService.class
+com\example\demo\context\BonusServiceContext.class
+com\example\demo\BonusServiceApplication.class
