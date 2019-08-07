@@ -1,3 +1,4 @@
+/*
 package com.example.demo.repository;
 
 import org.junit.Before;
@@ -23,12 +24,14 @@ public class BonusRepositoryTest {
 
     @Before
     public void beforeEach() throws NoSuchFieldException, IllegalAccessException {
+*/
 /*        ArrayList<Integer> bonuses;
         Field bonusesField = BonusRepository.class.getDeclaredField("bonuses");
         bonusesField.setAccessible(true);
         bonuses = (ArrayList<Integer>)bonusesField.get(bonusRepository);
         bonuses.clear();
-        bonuses.add(8);*/
+        bonuses.add(8);*//*
+
     }
 
     @Test
@@ -50,4 +53,4 @@ public class BonusRepositoryTest {
     public void getOneBonuse() {
         assertEquals(1,bonusRepository.getOneBonuse(0));
     }
-}
+}*/

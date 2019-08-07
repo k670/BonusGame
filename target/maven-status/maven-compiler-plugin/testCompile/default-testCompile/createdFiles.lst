@@ -1,5 +1,3 @@
-com\example\demo\repository\BonusRepositoryTest.class
+com\example\demo\controller\BonusGameControllerTest.class
 com\example\demo\service\BonusServiceTest.class
 com\example\demo\BonusServiceApplicationTests.class
-com\example\demo\context\BonusServiceTestContext.class
-com\example\demo\controller\BonusGameControllerTest.class

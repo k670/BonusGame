@@ -1,22 +1,13 @@
 package com.example.demo.repository;
 
-import java.util.ArrayList;
+import com.example.demo.model.BonusModel;
+import org.springframework.data.repository.CrudRepository;
 
-public class BonusRepository {
-    private ArrayList<Integer> bonuses;
+import java.util.Collection;
 
-    public BonusRepository(){
-        bonuses = new ArrayList<>();
-        for (int i = 1; i < 5; i++) {
-            bonuses.add(i);
-        }
-    }
+public interface BonusRepository extends CrudRepository<BonusModel, Integer> {
 
-    public ArrayList<Integer> getBonuses(){
-        return bonuses;
-    }
-
-    public int getOneBonuse(int index){
-        return bonuses.get(index);
-    }
+    @Override
+    Collection<BonusModel> findAll();
 }
+
