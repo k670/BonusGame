@@ -24,11 +24,14 @@ public class BonusService {
 
     @PostConstruct
     private void connectToDB() {
-        ArrayList<BonusModel> bonusModels = new ArrayList<>();
-        for (int i = 0; i < 4; i++) {
-            bonusModels.add(new BonusModel(i, i));
+
+        if(bonusRepository.count()==0) {
+            ArrayList<BonusModel> bonusModels = new ArrayList<>();
+            for (int i = 1; i < 5; i++) {
+                bonusModels.add(new BonusModel(i, i));
+            }
+            bonusRepository.saveAll(bonusModels);
         }
-        bonusRepository.saveAll(bonusModels);
     }
 
     public Collection<BonusModel> getAllBonuses() {

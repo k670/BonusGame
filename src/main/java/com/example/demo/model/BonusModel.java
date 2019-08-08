@@ -1,18 +1,31 @@
 package com.example.demo.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import org.springframework.data.annotation.Id;
+import lombok.NoArgsConstructor;
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
 
 
 @Data
-//@Table(name = "BonusModel")
+@Entity
+@AllArgsConstructor
+@NoArgsConstructor
 public class BonusModel {
-    @Id
-    //@GeneratedValue
-    //@Column(name = "Id", nullable = false)
-    private final int id;
 
-    //@Column(name = "Value")
-    private final int value;
+    @Id
+    @GeneratedValue
+    @Column
+    private  int id;
+
+    @Column
+    private  int value;
+
+    public String toString(){
+        return "{\"id\":"+id+",\"value\":"+value+"}";
+    }
 
 }
