@@ -9,5 +9,7 @@ public interface BonusRepository extends CrudRepository<BonusModel, Integer> {
 
     @Override
     Collection<BonusModel> findAll();
+
+
 }
 

@@ -1,6 +1,7 @@
 package com.example.demo.context;
 
 import org.h2.jdbcx.JdbcDataSource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -9,13 +10,16 @@ import javax.sql.DataSource;
 
 @Configuration
 public class BonusServiceContext {
-        @Bean
-        public DataSource dragSource(){
+/*        @Bean
+        public DataSource dataSource(@Value("${spring.datasource.url}") String url,
+                                     @Value("${spring.datasource.username}")  String user,
+                                     @Value("${spring.datasource.password}") String password){
             JdbcDataSource jdbcDataSource = new JdbcDataSource();
-            jdbcDataSource.setURL("jdbc:h2:~/test2;DB_CLOSE_ON_EXIT=FALSE");
-            jdbcDataSource.setUser("sa");
+            jdbcDataSource.setURL(url);
+            jdbcDataSource.setUser(user);
+            jdbcDataSource.setPassword(password);
             return jdbcDataSource;
-        }
+        }*/
 
 
 
