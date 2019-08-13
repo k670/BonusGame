@@ -4,14 +4,16 @@ import com.example.demo.model.BonusModel;
 import com.example.demo.model.UserModel;
 import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
 @Service
+@EnableCaching
 public class UserService {
 
     private UserRepository userRepository;
@@ -22,11 +24,16 @@ public class UserService {
         this.userRepository = userRepository;
         this.bonusService = bonusService;
     }
-
+    @Cacheable("allUsers")
     public Collection<UserModel> getAllUsers() {
-        return userRepository.findAll();
+/*        for (int i = 0; i < 100; i++) {
+
+             userRepository.findAll();
+        }*/
+        return  userRepository.findAll();
     }
 
+    @CacheEvict(value = "allUsers", allEntries = true)
     public UserModel updete(int uId) {
         Optional<UserModel> optionalUserModel = userRepository.findById(uId);
         if (!optionalUserModel.isPresent()) throw new NullPointerException();
@@ -37,13 +44,4 @@ public class UserService {
         return userModel;
     }
 
-   /* @PostConstruct
-    private void conectToDB() {
-        if (userRepository.count() == 0) {
-            ArrayList<UserModel> userModels = new ArrayList<>();
-            userModels.add(new UserModel(1, 1));
-            userModels.add(new UserModel(2, 10));
-            userRepository.saveAll(userModels);
-        }
-    }*/
 }

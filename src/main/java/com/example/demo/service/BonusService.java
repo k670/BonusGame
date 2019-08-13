@@ -4,10 +4,11 @@ import com.example.demo.model.BonusModel;
 import com.example.demo.repository.BonusRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.NavigableMap;
 import java.util.Random;
@@ -15,6 +16,7 @@ import java.util.TreeMap;
 
 @Slf4j
 @Service
+@EnableCaching
 public class BonusService {
 
     private static final Random RANDOM = new Random();
@@ -40,20 +42,7 @@ public class BonusService {
         }
     }
 
-/*
-    @PostConstruct
-    private void connectToDB() {
-
-        if (bonusRepository.count() == 0) {
-            ArrayList<BonusModel> bonusModels = new ArrayList<>();
-            for (int i = 1; i < 5; i++) {
-                bonusModels.add(new BonusModel(i, i, (5 - i) * 10));
-            }
-            bonusRepository.saveAll(bonusModels);
-        }
-    }
-*/
-
+    @Cacheable("allBonuses")
     public Collection<BonusModel> getAllBonuses() {
         return bonusRepository.findAll();
     }

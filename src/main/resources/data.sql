@@ -2,7 +2,8 @@
 INSERT  INTO UserModel (id, coins) VALUES
 (1,10),
 (2,20),
-(3,30);
+(3,30),
+(4,40);
 
 INSERT  INTO BonusModel (id, value, chance) VALUES
 (1, 1,10),

@@ -1,17 +1,11 @@
-/*
 
-
-CREATE SCHEMA  IF NOT EXISTS users (
-  id INT AUTO_INCREMENT  PRIMARY KEY,
-  coins INT NOT NULL
-);*/
-create table UserModel
+create table if not exists UserModel
 (
     id    INTEGER not null AUTO_INCREMENT PRIMARY KEY ,
     coins INTEGER not null
 );
 
-create table BonusModel
+create table if not exists BonusModel
 (
     id    INTEGER not null AUTO_INCREMENT PRIMARY KEY ,
     value INTEGER not null,
