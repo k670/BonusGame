@@ -38,4 +38,20 @@ public class UserService {
         return userModel;
     }
 
+    @CacheEvict(value = "allUsers")
+    public UserModel userGetBonus(int userId, double bet) {
+
+        Optional<UserModel> optionalUserModel = userRepository.findById(userId);
+        UserModel userModel = optionalUserModel.orElseThrow(NullPointerException::new);
+        double coins = userModel.getCoins();
+        if (coins < bet) {
+            return null;
+        }
+        coins = coins - bet + bonusService.chooseBonuse(bet, userId).getChance();
+        userModel.setCoins(coins);
+        userRepository.save(userModel);
+        return userModel;
+
+    }
+
 }

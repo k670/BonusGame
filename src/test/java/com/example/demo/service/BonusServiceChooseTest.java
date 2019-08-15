@@ -1,7 +1,9 @@
 package com.example.demo.service;
 
+import com.example.demo.model.BonusModel;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -10,6 +12,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.HashMap;
+import java.util.NavigableSet;
+import java.util.TreeSet;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutionException;
@@ -52,6 +56,9 @@ public class BonusServiceChooseTest {
 
         addAllResults(countThreads, executorService);
         executor.shutdown();
+        checkResult();
+        ;
+
     }
 
     @After
@@ -84,6 +91,19 @@ public class BonusServiceChooseTest {
                 countMap.merge(key, value, Long::sum);
             });
         }
+    }
+
+    private void checkResult() {
+        double sumChance = bonusService.getAllBonuses().stream().mapToDouble(BonusModel::getChance).sum();
+        double delta = 0.0331 * rep;
+        NavigableSet<Double> realDelta = new TreeSet<>();
+        bonusService.getAllBonuses().forEach(bm -> {
+            double expected = rep * bm.getChance() / sumChance;
+            double actual = countMap.get(bm.getValue());
+            Assert.assertEquals(expected, actual, delta);
+            realDelta.add(Math.abs(actual-expected));
+        });
+        log.info("Delta: "+realDelta.first()/rep+" - "+realDelta.last()/rep);
     }
 
     private void showResult() {

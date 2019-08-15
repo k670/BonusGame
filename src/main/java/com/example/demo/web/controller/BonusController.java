@@ -35,9 +35,6 @@ public class BonusController {
     public ResponseEntity<BonusActionResponse> chooseBonuse(@RequestBody BonusActionRequest bet) {
         BonusModel bonusModel = bonusService.chooseBonuse(bet.getBet(),bet.getUserId());
         return ResponseEntity.ok(new BonusActionResponse(bonusModel.getName(), bonusModel.getValue(), bonusModel.getChance()));
-
-/*        Map<String ,String> mapRes = bonusService.chooseBonuse(bet.getBet());
-        return ResponseEntity.ok(new BonusActionResponse(mapRes.get("name"),Double.valueOf(mapRes.get("value")),Double.valueOf(mapRes.get("win"))));*/
     }
 
     @ExceptionHandler(Throwable.class)

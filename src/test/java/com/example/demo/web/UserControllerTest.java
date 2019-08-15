@@ -76,8 +76,9 @@ public class UserControllerTest {
     @Test
     public void shouldShowUserModelWithStatus200UpondPostBonusWithIdProp() throws Exception {
 
+        when(userService.userGetBonus(userModels.get(0).getId(), userModels.get(0).getCoins())).thenReturn(userModels.get(0));
         String userModelsString = "{\"id\":" + userModels.get(0).getId() + ",\"coins\":" + userModels.get(0).getCoins() + "}";
-        String req = String.format("/user?id=%d&coins="+userModels.get(0).getCoins(),userModels.get(0).getId());
+        String req = String.format("/user?id=%d&bet="+userModels.get(0).getCoins(),userModels.get(0).getId());
         userControllerMock.perform(post(req))
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
                 .andExpect(status().isOk())
@@ -95,6 +96,6 @@ public class UserControllerTest {
 
     private void setUserControllerMock(ArrayList<UserModel> userModels) {
         when(userService.getAllUsers()).thenReturn(userModels);
-        when(userService.updete(1, userModels.get(0).getCoins())).thenReturn(userModels.get(0));
+        when(userService.userGetBonus(0, userModels.get(0).getCoins())).thenReturn(userModels.get(0));
     }
 }

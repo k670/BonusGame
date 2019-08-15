@@ -30,9 +30,13 @@ public class UserController {
     }
 
     @PostMapping("/user")
-    public ResponseEntity<UserModel> chooseBonuse(@RequestParam int id, @RequestParam double coins) {
-        UserModel userModel = userService.updete(id, coins);
-        return ResponseEntity.ok(userModel);
+    public ResponseEntity<UserModel> chooseBonuse(@RequestParam int id, @RequestParam double bet) {
+        UserModel userModel = userService.userGetBonus(id, bet);
+        if(userModel==null){
+            return ResponseEntity.notFound().build();
+        }else {
+            return ResponseEntity.ok(userModel);
+        }
     }
 
 
