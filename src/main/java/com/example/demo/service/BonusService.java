@@ -4,60 +4,85 @@ import com.example.demo.model.BonusModel;
 import com.example.demo.repository.BonusRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.context.annotation.Lazy;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NavigableMap;
+import java.util.Optional;
 import java.util.Random;
 import java.util.TreeMap;
 
 @Slf4j
-@Service
-@EnableCaching
+@Service("bonusService")
 public class BonusService {
 
     private static final Random RANDOM = new Random();
     private BonusRepository bonusRepository;
 
-    private NavigableMap<Integer, Integer> navigableMap;
+    private Map<Double, BonusModel> bonusModelMap;
+    private NavigableMap<Double, Double> navigableMap;
+
 
     @Autowired
     public BonusService(BonusRepository bonusRepository) {
         this.bonusRepository = bonusRepository;
     }
 
-    @PostConstruct
-    protected void createPercentMap() {
-        BonusModel[] objectBonusModel = bonusRepository.findAll().toArray(new BonusModel[0]);
+    public void createPercentMap() {
+        BonusModel[] objectBonusModel = bonusModelMap.values().toArray(new BonusModel[0]);
         navigableMap = new TreeMap<>();
         if (objectBonusModel.length == 0) {
             return;
         }
-        navigableMap.put(objectBonusModel[0].getChance(), objectBonusModel[0].getId());
+        navigableMap.put(objectBonusModel[0].getChance(), objectBonusModel[0].getValue());
         for (int i = 1; i < objectBonusModel.length; i++) {
             navigableMap.put(objectBonusModel[i].getChance() + navigableMap.lastEntry().getKey(), objectBonusModel[i].getValue());
         }
     }
 
-    @Cacheable("allBonuses")
+
     public Collection<BonusModel> getAllBonuses() {
-        return bonusRepository.findAll();
+        return bonusModelMap.values();
     }
 
-    public int chooseBonuse() {
+    public BonusModel chooseBonuse() {
+        return chooseBonuse(1.0,1);
+    }
+
+    public BonusModel chooseBonuse(double bet, int userId) {
         if (navigableMap.isEmpty()) {
-            throw new NullPointerException();
+            throw new RuntimeException();
         }
-        return generateId(navigableMap.lastKey());
+        Optional<BonusModel> bonusModel = Optional.ofNullable(bonusModelMap.get(generateMultipl(navigableMap.lastKey())));
+        if (bonusModel.isEmpty()) return null;
+        double idEffect = 0.000_000_01;
+        bonusModel.get().setChance(bet * (bonusModel.get().getValue()+(userId*idEffect)));
+        return bonusModel.get();
 
     }
 
-    private int generateId(int chanceSum) {
-        int chance = RANDOM.nextInt(chanceSum);
+
+
+    private double generateMultipl(double chanceSum) {
+        double chance = chanceSum * RANDOM.nextDouble();
         return navigableMap.higherEntry(chance).getValue();
+    }
+
+    @PostConstruct
+    @Scheduled(initialDelay = 1000)
+    public void readDB() {
+        bonusModelMap = new HashMap<>();
+        Collection<BonusModel> collection = bonusRepository.findAll();
+        collection.forEach(bm -> {
+            bonusModelMap.put(bm.getValue(), bm);
+        });
+        createPercentMap();
     }
 
 }
