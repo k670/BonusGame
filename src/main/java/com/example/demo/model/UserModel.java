@@ -8,21 +8,19 @@ import lombok.NoArgsConstructor;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.persistence.Table;
 
 @Data
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Table
 public class UserModel {
 
     @Id
-    @Column(name = "id")
+    @Column(name = "id", nullable = false)
     private int id;
 
     @Column(name = "coins")
-    private int coins;
+    private double coins;
 
 
 }

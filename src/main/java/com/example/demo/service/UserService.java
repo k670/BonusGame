@@ -1,6 +1,5 @@
 package com.example.demo.service;
 
-import com.example.demo.model.BonusModel;
 import com.example.demo.model.UserModel;
 import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,22 +23,17 @@ public class UserService {
         this.userRepository = userRepository;
         this.bonusService = bonusService;
     }
+
     @Cacheable("allUsers")
     public Collection<UserModel> getAllUsers() {
-/*        for (int i = 0; i < 100; i++) {
-
-             userRepository.findAll();
-        }*/
-        return  userRepository.findAll();
+        return userRepository.findAll();
     }
 
-    @CacheEvict(value = "allUsers", allEntries = true)
-    public UserModel updete(int uId) {
+    @CacheEvict(value = "allUsers")
+    public UserModel updete(int uId, double coins) {
         Optional<UserModel> optionalUserModel = userRepository.findById(uId);
-        if (!optionalUserModel.isPresent()) throw new NullPointerException();
-
-        UserModel userModel = optionalUserModel.get();
-        userModel.setCoins(bonusService.chooseBonuse() * userModel.getCoins());
+        UserModel userModel = optionalUserModel.orElseThrow(NullPointerException::new);
+        userModel.setCoins(coins);
         userRepository.save(userModel);
         return userModel;
     }
