@@ -1,10 +1,10 @@
 package com.example.demo.web.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Builder;
+import lombok.Value;
 
-@Data
-@AllArgsConstructor
+@Value
+@Builder
 public class BonusActionResponse {
     private String name;
     private double value;

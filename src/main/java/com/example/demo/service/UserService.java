@@ -16,12 +16,10 @@ import java.util.Optional;
 public class UserService {
 
     private UserRepository userRepository;
-    private BonusService bonusService;
 
     @Autowired
-    public UserService(UserRepository userRepository, BonusService bonusService) {
+    public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
-        this.bonusService = bonusService;
     }
 
     @Cacheable("allUsers")
@@ -29,29 +27,13 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    @CacheEvict(value = "allUsers")
-    public UserModel updete(int uId, double coins) {
+    @CacheEvict(value = "allUsers", allEntries = true)
+    public UserModel addDeltaToUserCoins(int uId, double deltaCoins) {
         Optional<UserModel> optionalUserModel = userRepository.findById(uId);
-        UserModel userModel = optionalUserModel.orElseThrow(NullPointerException::new);
-        userModel.setCoins(coins);
+        UserModel userModel = optionalUserModel.orElseThrow(() -> new RuntimeException("User don't found"));
+        userModel.setCoins(deltaCoins + userModel.getCoins());
         userRepository.save(userModel);
         return userModel;
-    }
-
-    @CacheEvict(value = "allUsers")
-    public UserModel userGetBonus(int userId, double bet) {
-
-        Optional<UserModel> optionalUserModel = userRepository.findById(userId);
-        UserModel userModel = optionalUserModel.orElseThrow(NullPointerException::new);
-        double coins = userModel.getCoins();
-        if (coins < bet) {
-            return null;
-        }
-        coins = coins - bet + bonusService.chooseBonuse(bet, userId).getChance();
-        userModel.setCoins(coins);
-        userRepository.save(userModel);
-        return userModel;
-
     }
 
 }

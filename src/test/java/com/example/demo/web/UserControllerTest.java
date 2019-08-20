@@ -19,7 +19,6 @@ import java.util.Random;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -44,6 +43,7 @@ public class UserControllerTest {
         setUserControllerMock(userModels);
     }
 
+    //Get
     @Test
     public void shouldShowBracketsUponGetEmptyTableInDB() throws Exception {
         when(userService.getAllUsers()).thenReturn(new ArrayList<>());
@@ -63,28 +63,7 @@ public class UserControllerTest {
             String userModelsString = "{\"id\":" + userModel.getId() + ",\"coins\":" + userModel.getCoins() + "}";
             assertTrue(body.contains(userModelsString));
         });
-
     }
-
-
-    @Test
-    public void shouldReturnEmptyWithStatus500UponPostWioutIdProp() throws Exception {
-        userControllerMock.perform(post("/user")).andExpect(status().is(500));
-    }
-
-
-    @Test
-    public void shouldShowUserModelWithStatus200UpondPostBonusWithIdProp() throws Exception {
-
-        when(userService.userGetBonus(userModels.get(0).getId(), userModels.get(0).getCoins())).thenReturn(userModels.get(0));
-        String userModelsString = "{\"id\":" + userModels.get(0).getId() + ",\"coins\":" + userModels.get(0).getCoins() + "}";
-        String req = String.format("/user?id=%d&bet="+userModels.get(0).getCoins(),userModels.get(0).getId());
-        userControllerMock.perform(post(req))
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(status().isOk())
-                .andExpect(content().string(userModelsString));
-    }
-
 
     private void initUserModel() {
         userModels = new ArrayList<>();
@@ -93,9 +72,7 @@ public class UserControllerTest {
         }
     }
 
-
     private void setUserControllerMock(ArrayList<UserModel> userModels) {
         when(userService.getAllUsers()).thenReturn(userModels);
-        when(userService.userGetBonus(0, userModels.get(0).getCoins())).thenReturn(userModels.get(0));
     }
 }

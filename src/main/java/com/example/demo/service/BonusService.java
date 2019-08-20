@@ -1,88 +1,62 @@
 package com.example.demo.service;
 
 import com.example.demo.model.BonusModel;
-import com.example.demo.repository.BonusRepository;
+import com.example.demo.service.choosealgorithm.BonusChoosable;
+import com.example.demo.service.choosealgorithm.BonusChoosableTypes;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.EnableCaching;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NavigableMap;
-import java.util.Optional;
-import java.util.Random;
-import java.util.TreeMap;
+
+import static com.example.demo.service.choosealgorithm.BonusChoosableTypes.DOUBLECHOOSE;
+import static com.example.demo.service.choosealgorithm.BonusChoosableTypes.EXCEPTIONCHOOSE;
+import static com.example.demo.service.choosealgorithm.BonusChoosableTypes.SIMPLECHOOSE;
 
 @Slf4j
 @Service("bonusService")
 public class BonusService {
 
-    private static final Random RANDOM = new Random();
-    private BonusRepository bonusRepository;
-
-    private Map<Double, BonusModel> bonusModelMap;
-    private NavigableMap<Double, Double> navigableMap;
-
+    private Map<BonusChoosableTypes, BonusChoosable> bonusChoosableMap = new HashMap<>();
+    private final Collection<BonusChoosable> choosables;
 
     @Autowired
-    public BonusService(BonusRepository bonusRepository) {
-        this.bonusRepository = bonusRepository;
+    public BonusService(Collection<BonusChoosable> choosables) {
+
+        this.choosables = choosables;
     }
 
-    public void createPercentMap() {
-        BonusModel[] objectBonusModel = bonusModelMap.values().toArray(new BonusModel[0]);
-        navigableMap = new TreeMap<>();
-        if (objectBonusModel.length == 0) {
-            return;
-        }
-        navigableMap.put(objectBonusModel[0].getChance(), objectBonusModel[0].getValue());
-        for (int i = 1; i < objectBonusModel.length; i++) {
-            navigableMap.put(objectBonusModel[i].getChance() + navigableMap.lastEntry().getKey(), objectBonusModel[i].getValue());
-        }
+    public Collection<BonusModel> getAllBonuses(int userId) {
+        BonusChoosableTypes type = getBonusChoosableTypes(userId);
+        return bonusChoosableMap.get(type).getAllBonus(userId);
     }
 
-
-    public Collection<BonusModel> getAllBonuses() {
-        return bonusModelMap.values();
-    }
-
-    public BonusModel chooseBonuse() {
-        return chooseBonuse(1.0,1);
-    }
-
+    //win = bonusModel.getChance()
     public BonusModel chooseBonuse(double bet, int userId) {
-        if (navigableMap.isEmpty()) {
-            throw new RuntimeException();
+        if (bet <= 0) {
+            throw new RuntimeException("Wrong bet");
         }
-        Optional<BonusModel> bonusModel = Optional.ofNullable(bonusModelMap.get(generateMultipl(navigableMap.lastKey())));
-        if (bonusModel.isEmpty()) return null;
-        double idEffect = 0.000_000_01;
-        bonusModel.get().setChance(bet * (bonusModel.get().getValue()+(userId*idEffect)));
-        return bonusModel.get();
-
+        BonusChoosableTypes type = getBonusChoosableTypes(userId);
+        return bonusChoosableMap.get(type).chooseBonuse(userId, bet);
     }
 
-
-
-    private double generateMultipl(double chanceSum) {
-        double chance = chanceSum * RANDOM.nextDouble();
-        return navigableMap.higherEntry(chance).getValue();
+    private BonusChoosableTypes getBonusChoosableTypes(int userId) {
+        BonusChoosableTypes type;
+        if (userId <= 0) {
+            type = EXCEPTIONCHOOSE;
+        } else {
+            type = userId % 2 == 0 ? DOUBLECHOOSE : SIMPLECHOOSE;
+        }
+        return type;
     }
+
 
     @PostConstruct
-    @Scheduled(initialDelay = 1000)
-    public void readDB() {
-        bonusModelMap = new HashMap<>();
-        Collection<BonusModel> collection = bonusRepository.findAll();
-        collection.forEach(bm -> {
-            bonusModelMap.put(bm.getValue(), bm);
-        });
-        createPercentMap();
+    public void readBonusRepo() {
+        choosables.forEach(c -> bonusChoosableMap.put(c.getType(), c));
     }
 
 }

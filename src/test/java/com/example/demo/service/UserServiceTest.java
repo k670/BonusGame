@@ -1,6 +1,5 @@
 package com.example.demo.service;
 
-import com.example.demo.model.BonusModel;
 import com.example.demo.model.UserModel;
 import com.example.demo.repository.UserRepository;
 import org.junit.Before;
@@ -9,6 +8,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.ArrayList;
@@ -27,8 +27,6 @@ public class UserServiceTest {
 
     @MockBean
     private UserRepository userRepository;
-    @MockBean
-    private BonusService bonusService;
 
     private ArrayList<UserModel> userModels;
 
@@ -39,28 +37,48 @@ public class UserServiceTest {
             userModels.add(new UserModel(i, i));
         }
         when(userRepository.findAll()).thenReturn(userModels);
-        when(userRepository.findById(1)).thenReturn(Optional.of(userModels.get(0)));
         when(userRepository.count()).thenReturn(Long.valueOf(userModels.size()));
-        when(userRepository.save(userModels.get(0))).thenReturn(userModels.get(0));
     }
 
+
     @Test
-    public void shouldGetAllUsers() {
+    public void shouldGetAllUsersUponRepoChange() {
+        assertArrayEquals(userModels.toArray(), userService.getAllUsers().toArray());
+
+        when(userRepository.findAll()).thenReturn(new ArrayList<UserModel>());
+        when(userRepository.count()).thenReturn(0L);
         assertArrayEquals(userModels.toArray(), userService.getAllUsers().toArray());
     }
 
     @Test
-    public void shouldGetEmpty() {
-        when(userRepository.findAll()).thenReturn(userModels);
-        assertArrayEquals(userModels.toArray(), userService.getAllUsers().toArray());
+    @CacheEvict("allUsers")
+    public void shouldGetEmptyUponResetCache() {
+        //reset
+        when(userRepository.findById(userModels.get(0).getId())).thenReturn(Optional.ofNullable(userModels.get(0)));
+        userService.addDeltaToUserCoins(userModels.get(0).getId(), 0);
+        //
+        ArrayList<UserModel> emptyArray = new ArrayList<UserModel>();
+        when(userRepository.findAll()).thenReturn(emptyArray);
+        when(userRepository.count()).thenReturn(0L);
+
+        assertArrayEquals(emptyArray.toArray(), userService.getAllUsers().toArray());
     }
 
     @Test
-    public void shouldMultCoins2() {
-        /*when(bonusService.chooseBonuse(userModels.get(1).getCoins(), 1))
-                .thenReturn(new BonusModel(1, "mx2", 2.0, 2 * userModels.get(1).getCoins()));//new BonusActionResponse( "mx1",2.0,100.0));*/
-        double expect = userModels.get(0).getCoins() * 2;
-        double actual = userService.updete(1, expect).getCoins();
-        assertEquals(expect, actual, 0.01);
+    public void shouldUpdateUser() {
+
+        for (UserModel userModel : userModels) {
+            when(userRepository.findById(userModel.getId())).thenReturn(Optional.of(userModel));
+            when(userRepository.save(userModel)).thenReturn(userModel);
+            userModel.setCoins(2 * userModel.getCoins());
+            when(userRepository.save(userModel)).thenReturn(userModel);
+        }
+
+        for (UserModel userModel : userModels) {
+            UserModel newUserModel = userService.addDeltaToUserCoins(userModel.getId(), userModel.getCoins());
+            userModel.setCoins(2 * userModel.getCoins());
+            assertEquals(userModel, newUserModel);
+        }
     }
+
 }

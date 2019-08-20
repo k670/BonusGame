@@ -37,5 +37,8 @@ public class BonusModel {
     @JsonIgnore
     private double chance;
 
-
+    @Override
+    public BonusModel clone() {
+        return new BonusModel(id, name, value, chance);
+    }
 }
